@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Links by Range</title>
+    <style>
+        /* 押されたボタンの色を変えるクラス */
+        .clicked {
+            background-color: lightgray;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ここに動的にリンクが追加される -->
+    <div id="linksContainer"></div>
+
+    <!-- ボタンを配置するためのエリア -->
+    <div id="buttonsContainer"></div>
+
+    <script>
+        // url_list.js からURLを読み込んで、リンクを動的に生成
+        fetch('url_list.js')
+            .then(response => response.text())  // テキスト形式で読み込み
+            .then(data => {
+                var urls = data.trim().split('\n');  // 改行で分割してURLの配列に
+                var linksContainer = document.getElementById('linksContainer');
+
+                // URLをa要素としてリンクを追加
+                urls.forEach((url, index) => {
+                    var linkElement = document.createElement('a');
+                    linkElement.href = url;
+                    linkElement.textContent = `Link ${index + 1}`;
+                    linksContainer.appendChild(linkElement);
+                    linksContainer.appendChild(document.createElement('br'));  // 改行
+                });
+
+                // リンクを追加した後にボタンを作成
+                createButtonsForLinks(urls);
+            });
+
+        // リンクを一定範囲で開く関数
+        function openLinksInRange(start, end, button) {
+            var links = document.querySelectorAll("#linksContainer a");
+            for (var i = start - 1; i < end; i++) {
+                if (links[i]) {
+                    window.open(links[i].href, '_blank');
+                }
+            }
+
+            // ボタンの色を変えて押したことを視覚的に示す
+            button.classList.add("clicked");
+            button.disabled = true; // ボタンを無効化して再度押せなくする
+        }
+
+        // ボタンを動的に作成し、クリックイベントを設定する関数
+        function createButton(start, end) {
+            // ボタン要素を作成
+            var button = document.createElement("button");
+            button.id = `openLinksButton-${start}-${end}`;
+            button.textContent = `${start}～${end}リンクを開く`;
+
+            // クリックイベントを設定
+            button.addEventListener("click", function() {
+                openLinksInRange(start, end, button);
+            });
+
+            // ボタンをボタンコンテナに追加
+            document.getElementById("buttonsContainer").appendChild(button);
+        }
+
+        // 10個ごとにボタンを作成する関数
+        function createButtonsForLinks(links) {
+            for (var i = 0; i < links.length; i += 10) {
+                var start = i + 1;
+                var end = Math.min(i + 10, links.length);
+                createButton(start, end);
+            }
+        }
+    </script>
+
+</body>
+</html>
