@@ -52,5 +52,5 @@ javascript:(async () => {
     };
 
     // リンクのテキストファイルをダウンロード
-    download('window_links_without_hashtag.txt', linkText);
+    download('url_list.js', linkText);
 })();
