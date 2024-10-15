@@ -1,6 +1,4 @@
-// 指定されたdiv内をスクロールしながらリンクを取得する関数
-async function getLinksFromViewport() {
-    // data-viewportview="true"を持つdiv要素を取得
+javascript:(async () => {
     const viewportDiv = document.querySelector('div[data-viewportview="true"]');
 
     if (!viewportDiv) {
@@ -10,7 +8,6 @@ async function getLinksFromViewport() {
 
     const links = new Set(); // 重複を避けるためにSetを使用
 
-    // div内をスクロールしながらリンクを取得する関数
     const scrollAndCollectLinks = async () => {
         return new Promise((resolve) => {
             let distance = 100; // スクロールする距離
@@ -31,7 +28,7 @@ async function getLinksFromViewport() {
                 viewportDiv.scrollBy(0, distance);
 
                 // 最下部に近づいた場合は終了（余裕を持たせる）
-                if (scrollTop + clientHeight + 1 >= scrollHeight) 
+                if (scrollTop + clientHeight + 1 >= scrollHeight) {
                     clearInterval(timer);
                     resolve();
                 }
@@ -57,8 +54,5 @@ async function getLinksFromViewport() {
     };
 
     // リンクのテキストファイルをダウンロード
-    download('followlist.txt', linkText);
-}
-
-// 関数を呼び出して実行
-getLinksFromViewport();
+    download('viewport_links_without_hashtag.txt', linkText);
+})();
