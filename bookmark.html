@@ -29,10 +29,17 @@
                 var linksContainer = document.getElementById('linksContainer');
 
                 // URLをa要素としてリンクを追加
-                urls.forEach((url, index) => {
+                urls.forEach(url => {
+                    // https://x.com/以降の文字列を取得
+                    var identifier = url.replace('https://x.com/', '');
+                    
+                    // 新しいURLを生成
+                    var newUrl = `https://x.com/search?q=filter%3Amedia%20from%3A${identifier}&f=live`;
+
+                    // a要素を作成
                     var linkElement = document.createElement('a');
-                    linkElement.href = url;
-                    linkElement.textContent = `Link ${index + 1}`;
+                    linkElement.href = newUrl;
+                    linkElement.textContent = `Link: ${identifier}`; // クリック可能なリンクに表示するテキスト
                     linksContainer.appendChild(linkElement);
                     linksContainer.appendChild(document.createElement('br'));  // 改行
                 });
