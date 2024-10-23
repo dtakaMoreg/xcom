@@ -1,23 +1,21 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Open Links by Range</title>
     <style>
-        /* 押されたボタンの色を変えるクラス */
         .clicked {
             background-color: lightgray;
             color: white;
         }
     </style>
 </head>
+
 <body>
 
-    <!-- ボタンを配置するためのエリア -->
     <div id="buttonsContainer"></div>
-
-    <!-- ここに動的にリンクが追加される -->
     <div id="linksContainer"></div>
 
     <script>
@@ -30,51 +28,49 @@
 
                 // URLをa要素としてリンクを追加
                 urls.forEach(url => {
-                    // https://x.com/以降の文字列を取得
                     var identifier = url.replace('https://x.com/', '');
-                    
-                    // 新しいURLを生成
                     var newUrl = `https://x.com/search?q=filter%3Amedia%20from%3A${identifier}&f=live`;
 
-                    // a要素を作成
                     var linkElement = document.createElement('a');
                     linkElement.href = newUrl;
-                    linkElement.textContent = `Link: ${identifier}`; // クリック可能なリンクに表示するテキスト
+                    linkElement.textContent = `Link: ${identifier}`;
                     linksContainer.appendChild(linkElement);
-                    linksContainer.appendChild(document.createElement('br'));  // 改行
+                    linksContainer.appendChild(document.createElement('br'));
                 });
 
-                // リンクを追加した後にボタンを作成
                 createButtonsForLinks(urls);
             });
 
-        // リンクを一定範囲で開く関数
+        // リンクを一定範囲で1秒ごとに開く関数
         function openLinksInRange(start, end, button) {
             var links = document.querySelectorAll("#linksContainer a");
+            var delay = 0; // 開始時の遅延を0に設定
+
             for (var i = start - 1; i < end; i++) {
                 if (links[i]) {
-                    window.open(links[i].href, '_blank');
+                    // 1秒ごとにリンクを開く
+                    setTimeout(function(link) {
+                        window.open(link.href, '_blank');
+                    }, delay, links[i]);
+
+                    delay += 1000; // 次のリンクを1秒遅れで開く
                 }
             }
 
-            // ボタンの色を変えて押したことを視覚的に示す
             button.classList.add("clicked");
-            button.disabled = true; // ボタンを無効化して再度押せなくする
+            button.disabled = true;
         }
 
         // ボタンを動的に作成し、クリックイベントを設定する関数
         function createButton(start, end) {
-            // ボタン要素を作成
             var button = document.createElement("button");
             button.id = `openLinksButton-${start}-${end}`;
             button.textContent = `${start}～${end}リンクを開く`;
 
-            // クリックイベントを設定
             button.addEventListener("click", function() {
                 openLinksInRange(start, end, button);
             });
 
-            // ボタンをボタンコンテナに追加
             document.getElementById("buttonsContainer").appendChild(button);
         }
 
