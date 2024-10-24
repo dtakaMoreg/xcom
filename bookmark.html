@@ -19,26 +19,22 @@
     <div id="linksContainer"></div>
 
     <script>
-        const sheetID = '1vwqDd8TRXWkN2zgMoDZBzH9F6Peewde5LS2uPRWvBeo';
-        const sheetNumber = '1'; // シート番号
+        // JSON APIのURL
+        const apiUrl = 'https://script.google.com/macros/s/AKfycbwajcjBwnDqKCS7eeTolm1ru8GKn6Agj72kOm_0cJi6EBlP5ROB0rioTAzXxsd7yPSx/exec';
 
-        // Googleスプレッドシートのデータを取得
-        const url = `https://spreadsheets.google.com/feeds/list/${sheetID}/${sheetNumber}/public/values?alt=json`;
-
-        fetch(url)
+        // JSONデータを取得してURLをリンクとして追加する処理
+        fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
-                const entries = data.feed.entry;
-                const urls = entries.map(entry => entry.gsx$url.$t);  // "gsx$url" はスプレッドシート内のURL列の名前
-
-                var linksContainer = document.getElementById('linksContainer');
+                const urls = data.map(entry => entry.URL);  // JSON内の"URL"フィールドを抽出
+                const linksContainer = document.getElementById('linksContainer');
 
                 // URLをリンクとして追加
                 urls.forEach(url => {
-                    var identifier = url.replace('https://x.com/', '');
-                    var newUrl = `https://x.com/search?q=filter%3Amedia%20from%3A${identifier}&f=live`;
+                    const identifier = url.replace('https://x.com/', '');
+                    const newUrl = `https://x.com/search?q=filter%3Amedia%20from%3A${identifier}&f=live`;
 
-                    var linkElement = document.createElement('a');
+                    const linkElement = document.createElement('a');
                     linkElement.href = newUrl;
                     linkElement.textContent = `Link: ${identifier}`;
                     linksContainer.appendChild(linkElement);
@@ -51,10 +47,10 @@
 
         // リンクを一定範囲で1秒ごとに開く関数
         function openLinksInRange(start, end, button) {
-            var links = document.querySelectorAll("#linksContainer a");
-            var delay = 0;
+            const links = document.querySelectorAll("#linksContainer a");
+            let delay = 0;
 
-            for (var i = start - 1; i < end; i++) {
+            for (let i = start - 1; i < end; i++) {
                 if (links[i]) {
                     setTimeout(function(link) {
                         window.open(link.href, '_blank');
@@ -70,7 +66,7 @@
 
         // ボタンを動的に作成し、クリックイベントを設定する関数
         function createButton(start, end) {
-            var button = document.createElement("button");
+            const button = document.createElement("button");
             button.id = `openLinksButton-${start}-${end}`;
             button.textContent = `${start}～${end}リンクを開く`;
 
@@ -83,9 +79,9 @@
 
         // 10個ごとにボタンを作成する関数
         function createButtonsForLinks(links) {
-            for (var i = 0; i < links.length; i += 10) {
-                var start = i + 1;
-                var end = Math.min(i + 10, links.length);
+            for (let i = 0; i < links.length; i += 10) {
+                const start = i + 1;
+                const end = Math.min(i + 10, links.length);
                 createButton(start, end);
             }
         }
