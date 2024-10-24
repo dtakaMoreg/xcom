@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ja">
 
 <head>
@@ -19,14 +19,21 @@
     <div id="linksContainer"></div>
 
     <script>
-        // url_list.js からURLを読み込んで、リンクを動的に生成
-        fetch('url_list.js')
-            .then(response => response.text())  // テキスト形式で読み込み
+        const sheetID = '1vwqDd8TRXWkN2zgMoDZBzH9F6Peewde5LS2uPRWvBeo';
+        const sheetNumber = '1'; // シート番号
+
+        // Googleスプレッドシートのデータを取得
+        const url = `https://spreadsheets.google.com/feeds/list/${sheetID}/${sheetNumber}/public/values?alt=json`;
+
+        fetch(url)
+            .then(response => response.json())
             .then(data => {
-                var urls = data.trim().split('\n');  // 改行で分割してURLの配列に
+                const entries = data.feed.entry;
+                const urls = entries.map(entry => entry.gsx$url.$t);  // "gsx$url" はスプレッドシート内のURL列の名前
+
                 var linksContainer = document.getElementById('linksContainer');
 
-                // URLをa要素としてリンクを追加
+                // URLをリンクとして追加
                 urls.forEach(url => {
                     var identifier = url.replace('https://x.com/', '');
                     var newUrl = `https://x.com/search?q=filter%3Amedia%20from%3A${identifier}&f=live`;
@@ -39,21 +46,21 @@
                 });
 
                 createButtonsForLinks(urls);
-            });
+            })
+            .catch(error => console.error('エラーが発生しました:', error));
 
         // リンクを一定範囲で1秒ごとに開く関数
         function openLinksInRange(start, end, button) {
             var links = document.querySelectorAll("#linksContainer a");
-            var delay = 0; // 開始時の遅延を0に設定
+            var delay = 0;
 
             for (var i = start - 1; i < end; i++) {
                 if (links[i]) {
-                    // 1秒ごとにリンクを開く
                     setTimeout(function(link) {
                         window.open(link.href, '_blank');
                     }, delay, links[i]);
 
-                    delay += 1000; // 次のリンクを1秒遅れで開く
+                    delay += 1000;
                 }
             }
 
