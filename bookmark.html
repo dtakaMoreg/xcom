@@ -4,24 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Links by Range</title>
-    <style>
-        .clicked {
-            background-color: lightgray;
-            color: white;
-        }
-    </style>
+    <title>Open Links Sequentially</title>
 </head>
 
 <body>
-    <div id="buttonsContainer"></div>
+    <button id="openNextLinkButton">次のリンクを開く</button>
+    <button id="resetButton">初期化</button>
     <div id="linksContainer"></div>
 
     <script>
-        // JSON APIのURL
         const apiUrl = 'https://script.google.com/macros/s/AKfycbwajcjBwnDqKCS7eeTolm1ru8GKn6Agj72kOm_0cJi6EBlP5ROB0rioTAzXxsd7yPSx/exec?mode=followurl';
+        const CURRENT_INDEX_KEY = 'currentIndex';
 
-        // JSONデータを取得してリンクを生成する
+        // リンクデータを取得し表示
         fetch(apiUrl)
             .then(response => {
                 if (!response.ok) {
@@ -37,63 +32,45 @@
                 const urls = data.map(entry => entry.URL).filter(Boolean); // 空のURLを除外
                 const linksContainer = document.getElementById('linksContainer');
 
-                // URLをリンクとして生成
+                // リンク生成
                 urls.forEach(url => {
                     const identifier = url.replace('https://x.com/', '');
                     const newUrl = `https://x.com/search?q=filter%3Amedia%20from%3A${identifier}&f=live`;
 
                     const linkElement = document.createElement('a');
                     linkElement.href = newUrl;
-                    linkElement.textContent = `Link: ${identifier}`;
+                    linkElement.textContent = newUrl;
                     linksContainer.appendChild(linkElement);
                     linksContainer.appendChild(document.createElement('br'));
                 });
 
-                createButtonsForLinks(urls);
+                // 初期値設定
+                if (localStorage.getItem(CURRENT_INDEX_KEY) === null) {
+                    localStorage.setItem(CURRENT_INDEX_KEY, '0');
+                }
+
+                // 次のリンクを開くボタンのイベント
+                document.getElementById('openNextLinkButton').addEventListener('click', () => {
+                    let currentIndex = parseInt(localStorage.getItem(CURRENT_INDEX_KEY), 10);
+                    const links = document.querySelectorAll('#linksContainer a');
+
+                    if (currentIndex < links.length) {
+                        window.open(links[currentIndex].href, '_blank');
+                        currentIndex++;
+                        localStorage.setItem(CURRENT_INDEX_KEY, currentIndex.toString());
+                    } else {
+                        alert('すべてのリンクを開きました。');
+                    }
+                });
+
+                // 初期化ボタンのイベント
+                document.getElementById('resetButton').addEventListener('click', () => {
+                    localStorage.setItem(CURRENT_INDEX_KEY, '0');
+                    alert('リンクの位置を初期化しました。');
+                });
             })
             .catch(error => console.error('エラーが発生しました:', error));
-
-        // リンクを一定範囲で1秒ごとに開く関数
-        function openLinksInRange(start, end, button) {
-            const links = document.querySelectorAll("#linksContainer a");
-            let currentIndex = start - 1;
-
-            function openNextLink() {
-                if (currentIndex < end && links[currentIndex]) {
-                    window.open(links[currentIndex].href, '_blank');
-                    currentIndex++;
-                    setTimeout(openNextLink, 1000); // 1秒間隔で次のリンクを開く
-                } else {
-                    button.classList.add("clicked");
-                    button.disabled = true;
-                }
-            }
-
-            openNextLink();
-        }
-
-        // ボタンを動的に作成し、クリックイベントを設定する
-        function createButton(start, end) {
-            const button = document.createElement("button");
-            button.id = `openLinksButton-${start}-${end}`;
-            button.textContent = `${start}～${end}リンクを開く`;
-
-            button.addEventListener("click", function () {
-                openLinksInRange(start, end, button);
-            });
-
-            document.getElementById("buttonsContainer").appendChild(button);
-        }
-
-        // 10個ごとにボタンを作成する
-        function createButtonsForLinks(links) {
-            for (let i = 0; i < links.length; i += 10) {
-                const start = i + 1;
-                const end = Math.min(i + 10, links.length);
-                createButton(start, end);
-            }
-        }
     </script>
-
 </body>
+
 </html>
